@@ -5,6 +5,7 @@
 .RData
 .Ruserdata
 .Renviron
+.idea
 
 # directorios a ignorar en repo
 .ipynb_checkpoints/
