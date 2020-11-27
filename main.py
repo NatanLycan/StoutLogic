@@ -1,8 +1,61 @@
 import csv
-from collections import namedtuple 
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import t
+from collections import namedtuple as nt
 
-Personas = namedtuple('Personas', 'name, age')
-path="test.csv"
+file = csv.reader(open("data/raw/data/ubicaciones.csv", "r",encoding='utf-8-sig'), delimiter=',')
+f = csv.reader(open("data/raw/data/ubicaciones.csv", "r",encoding='utf-8-sig'), delimiter=',')
+line_count = 0
+l=[]
+frecs=[]
+minlat=0#y
+maxlat=0#y
+minlon=0#x
+maxlon=0#x
 
-for p in map(Personas._make, csv.reader(open(path, "r"))):
-    print(p.name, p.age)
+#Obtengo las distintas frecuencias
+for r in f:
+    if not frecs.__contains__(r[2]):
+        frecs.append(r[2])
+frecs.pop(0)
+frecs.sort()
+
+#Inicializo variable por frecuencia
+for n in frecs:
+    exec("x"+n+"=[]\ny" + n + "=[]")
+
+
+
+for row in file:
+    if line_count == 0:
+        Personas = nt('Personas', ", ".join(row))
+        line_count += 1
+    else:
+        p1= Personas(row[0],row[1],int(row[2]),float(row[3]),float(row[4]),float(row[5]))
+        #print(p1)
+        l.append(p1)
+        line_count += 1
+        if maxlat<p1.lat:
+            maxlat=p1.lat
+        elif minlat>p1.lat:
+            minlat=p1.lat
+        if maxlon<p1.lon:
+            maxlon=p1.lon
+        elif minlon>p1.lon:
+            minlon = p1.lon
+        #Aqui abajo se guardan datos para grafico de distribucion de entregas
+        for n in frecs:
+            txt="if p1.Frecuencia=="+n+":\n\tx"+n+".append(p1.lon)\n\ty"+n+".append(p1.lat)"
+            exec(txt)
+
+
+#Grafico Distribucion de entregas
+for n in frecs:
+    txt="xe"+n+"=np.array(x"+n+")\nye"+n+"=np.array(y"+n+")\nplt.scatter(xe"+n+", ye"+n+",label='Frecuencia "+n+"')"
+    exec(txt)
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
