@@ -17,7 +17,12 @@ maxlat=0#y
 minlon=0#x
 maxlon=0#x
 vol_total=0
-
+dx=0#density
+dy=0
+# vars grafico de distribucion de densidad
+ax=[]#universo de posiciones
+ay=[]
+densidad=[]#vol*frec
 
 ##VAriables de respuesta final
 cliente = nt('cliente','CLIENTE, D1, D2, D3, D4, D5, D6')
@@ -40,14 +45,17 @@ for n in frecs:
 
 for row in file:
     if line_count == 0:
-        Personas = nt('Personas', ", ".join(row))
+        Data = nt('Data', ", ".join(row))
         line_count += 1
     else:
-        p1= Personas(row[0],row[1],int(row[2]),float(row[3]),float(row[4]),float(row[5]))
+        p1= Data(row[0],row[1],int(row[2]),float(row[3]),float(row[4]),float(row[5]))
         #print(p1)
         l.append(p1)
         line_count += 1
         vol_total += float(row[3])
+        ax.append(p1.lon)
+        ay.append(p1.lat)
+        densidad.append(p1.Vol_Entrega*p1.Frecuencia)
         if maxlat<p1.lat:
             maxlat=p1.lat
         elif minlat>p1.lat:
@@ -60,15 +68,34 @@ for row in file:
         for n in frecs:
             txt="if p1.Frecuencia=="+n+":\n\tx"+n+".append(p1.lon)\n\ty"+n+".append(p1.lat)"
             exec(txt)
+
+#obtengo area de cordenadas por frecuencia
+for n in frecs:
+    txt="x"+n+"_min=min(x"+n+")\nx"+n+"_max=max(x"+n+")\ny"+n+"_min=min(y"+n+")\ny"+n+"_max=max(y"+n+")"
+    exec(txt)
+#ejemplo
+#x1_min=min(x1)
+#x1_max=max(x1)
+
+print(l[1])
 print("Volumen disponible: "+str(vol_total)+"\nVolumen por Grupo: "+str(vol_total/6))
 
+
 #################Grafico Distribucion de entregas**********************s
-#for n in frecs:
-#    txt="xe"+n+"=np.array(x"+n+")\nye"+n+"=np.array(y"+n+")\nplt.scatter(xe"+n+", ye"+n+",label='Frecuencia "+n+"')"
-#    exec(txt)
-#plt.legend()
-#plt.grid(True)
-#plt.show()
+for n in frecs:
+    #Densidad de Frecuencia
+    txt="xe"+n+"=np.array(x"+n+")\nye"+n+"=np.array(y"+n+")\nplt.scatter(xe"+n+", ye"+n+",label='Frecuencia "+n+"')"
+    exec(txt)
+    #Area de Frecuencias
+    txt2="rectangle"+n+" = plt.Rectangle((x"+n+"_min,y"+n+"_min), x"+n+"_max-x"+n+"_min, y"+n+"_max-y"+n+"_min, fc='None', ec='red')\nplt.gca().add_patch(rectangle"+n+")"
+    exec(txt2)
+    #print(txt2)
+
+#rectangle = plt.Rectangle((x1_min,y1_min), x1_max-x1_min, y1_max-y1_min, fc="None", ec="red")
+#plt.gca().add_patch(rectangle)
+
+
+
 
 
 
@@ -89,3 +116,7 @@ print("Volumen disponible: "+str(vol_total)+"\nVolumen por Grupo: "+str(vol_tota
 #from scipy.stats import anderson
 #a=anderson(tuple(map(int,todas_frecs)))
 #print(a)
+
+
+
+
