@@ -1,14 +1,16 @@
 import csv
 import matplotlib.pyplot as plt
-import numpy as np
-from scipy.stats import t
+import matplotlib.pyplot as plt2
 from collections import namedtuple as nt
+import numpy as np
+from scipy import stats
 
 file = csv.reader(open("data/raw/data/ubicaciones.csv", "r",encoding='utf-8-sig'), delimiter=',')
 f = csv.reader(open("data/raw/data/ubicaciones.csv", "r",encoding='utf-8-sig'), delimiter=',')
 line_count = 0
 l=[]
 frecs=[]
+todas_frecs=[]
 minlat=0#y
 maxlat=0#y
 minlon=0#x
@@ -16,9 +18,11 @@ maxlon=0#x
 
 #Obtengo las distintas frecuencias
 for r in f:
+    todas_frecs.append(r[2])
     if not frecs.__contains__(r[2]):
         frecs.append(r[2])
 frecs.pop(0)
+todas_frecs.pop(0)
 frecs.sort()
 
 #Inicializo variable por frecuencia
@@ -50,12 +54,25 @@ for row in file:
             exec(txt)
 
 
-#Grafico Distribucion de entregas
-for n in frecs:
-    txt="xe"+n+"=np.array(x"+n+")\nye"+n+"=np.array(y"+n+")\nplt.scatter(xe"+n+", ye"+n+",label='Frecuencia "+n+"')"
-    exec(txt)
+#################Grafico Distribucion de entregas
+#for n in frecs:
+#    txt="xe"+n+"=np.array(x"+n+")\nye"+n+"=np.array(y"+n+")\nplt.scatter(xe"+n+", ye"+n+",label='Frecuencia "+n+"')"
+#    exec(txt)
+#plt.legend()
+#plt.grid(True)
+#plt.show()
+
+
+
+#Probability Distribution Frequency PDF
+bins = np.linspace(min(map(int,frecs))-1, max(map(int,frecs))+1, 10)
+histogram, bins = np.histogram(tuple(map(int,todas_frecs)), bins=bins, density=True)
+bin_centers = 0.5*(bins[1:] + bins[:-1])
+print(bins,histogram,bin_centers)
+
+pdf = stats.norm.pdf(bin_centers)
+
+plt.plot(bin_centers, histogram, label="Histogram of samples")
+plt.plot(bin_centers, pdf, label="PDF")
 plt.legend()
-plt.grid(True)
 plt.show()
-
-
